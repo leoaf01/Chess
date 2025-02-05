@@ -31,13 +31,13 @@ void InitializeBoard(Tile board[8][8]) {
         for(int j = 0; j < 2; j++){ // loop for players
             int playerRow = j * 7; 
             std::string piece = "rook";
-            if(i = 1)
+            if(i == 1)
                 piece = "knight";
-            if(i = 2)
+            if(i == 2)
                 piece = "bishop";
 
             board[playerRow][i] = Tile(piece, playerRow, i, j+1);
-            board[playerRow][8-i] = Tile(piece, playerRow, 8-i, j+1);
+            board[playerRow][7-i] = Tile(piece, playerRow, 7-i, j+1);
         }
     }
 
@@ -55,23 +55,25 @@ void InitializeBoard(Tile board[8][8]) {
 
 void PrintBoard(Tile board[8][8]){
     std::cout << "Printing board" << std::endl;
-    for(int i = 0; i < 8; i++)
+    for(int i = 0; i < 8; i++){
         for(int j = 0; j < 8; j++)
-            std::cout << board[i][j].GetPosition() << std::endl;
+            std::cout << "[" << board[i][j].GetPiece() << "] ";
+        std::cout << "" << std::endl;
+    }
 }
 
+void CheckTile(Tile board[8][8]) {
+    std::string tilePosition;
+    std::cin >> tilePosition;
+    int column = tilePosition[0] - 'a';
+    int row = tilePosition[1] - '1';
+    std::cout << "There is a " << board[row][column].GetPiece() << " in " << tilePosition << std::endl;
+}
 
-int main()
-{
+int main() {
     Tile board[8][8];
     InitializeBoard(board);
     PrintBoard(board);
-    while(true){
-        std::cout << "Continue? Press 1" << std::endl;
-        int d;
-        std::cin >> d;
-        if(d=1)
-            break;
-    }
+    CheckTile(board);
     return 0;
 }

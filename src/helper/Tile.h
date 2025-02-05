@@ -10,10 +10,10 @@ class Tile {
 
     void SetPosition(int row, int column);
 public:
-    Tile();
+    Tile() : pieceName(""), position({-1, -1}), playerPiece(0) {}
     Tile(int row, int column);
     Tile(std::string piece, int row, int column, char player);
-    std::string GetPosition();
+    std::pair<int, int> GetPosition();
     std::string GetPiece();
-    int getPlayer();
+    char GetPlayer();
 };
