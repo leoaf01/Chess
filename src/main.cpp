@@ -21,7 +21,7 @@ int main()
     sprite.setPosition({0, 0});
     
 
-    while (window.isOpen())rr
+    while (window.isOpen())
     {
         while (const std::optional event = window.pollEvent())
         {
