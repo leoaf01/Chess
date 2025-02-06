@@ -70,16 +70,16 @@ void CheckTile(Tile board[8][8]) {
     std::cout << "There is a " << board[row][column].GetPiece() << " in " << tilePosition << std::endl;
 }
 
-int main() {
+
+int main()
+{
+    // used for logic, prints almost everything in   terminal
     Tile board[8][8];
     InitializeBoard(board);
     PrintBoard(board);
     CheckTile(board);
-}
 
-
-int main()
-{
+    // used for display
     sf::RenderWindow window(sf::VideoMode({591, 591}), "My Chess Game");
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
