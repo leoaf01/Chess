@@ -2,7 +2,6 @@
 #include "helper/TextureManager.h" // uses 2.5.1 logic, some stuff has changed
 #include "helper/Tile.h"
 #include <iostream>
-#include <array>
 
 Tile board[8][8];
 
@@ -13,14 +12,14 @@ void InitializeBoard() {
 
     for(int i = 2; i < 6; i++){
         for(int j = 0; j < 8; j++){
-            board[i][j] = Tile(i, j);
+            board[i][j] = Tile();
         }
     }
 
     // 2. Initialize the pawns
     for(int i = 0; i < 8; i++){
-        board[1][i] = Tile("pawn", 1, i , 1);
-        board[6][i] = Tile("pawn", 6, i, 2);
+        board[1][i] = Tile("pawn", 0);
+        board[6][i] = Tile("pawn", 1);
     }
 
     // 3. Initialize pieces from the first and last row
@@ -35,8 +34,8 @@ void InitializeBoard() {
             if(i == 2)
                 piece = "bishop";
 
-            board[playerRow][i] = Tile(piece, playerRow, i, j+1);
-            board[playerRow][7-i] = Tile(piece, playerRow, 7-i, j+1);
+            board[playerRow][i] = Tile(piece, j);
+            board[playerRow][7-i] = Tile(piece, j);
         }
     }
 
@@ -44,8 +43,8 @@ void InitializeBoard() {
 
     for(int j = 0; j < 2; j++){
         int playerRow =  j*7;
-        board[playerRow][3] = Tile("queen", playerRow, 3, j+1);
-        board[playerRow][4] = Tile("king", playerRow, 4, j+1);
+        board[playerRow][3] = Tile("queen", j);
+        board[playerRow][4] = Tile("king", j);
     }
     
 
@@ -74,17 +73,8 @@ void MovePiece(std::string start, std::string end){
     std::pair<int, int> a = PositionToCoordinates(start);
     std::pair<int, int> b = PositionToCoordinates(end);
 
-    std::cout << a.first << a.second << std::endl;
-    std::cout << b.first << b.second << std::endl;
-    std::cout << board[a.first][a.second].GetPiece() << std::endl;
-    std::cout << board[b.first][b.second].GetPiece() << std::endl;
-
     // pass all the information from a to b
     board[a.first][a.second].MovePiece(board[b.first][b.second]);
-
-    std::cout << board[a.first][a.second].GetPiece() << std::endl;
-    std::cout << board[b.first][b.second].GetPiece() << std::endl;
-
 }
 
 void CheckTile() {
