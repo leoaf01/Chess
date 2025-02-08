@@ -4,7 +4,9 @@
 #include <iostream>
 #include <array>
 
-void InitializeBoard(Tile board[8][8]) {
+Tile board[8][8];
+
+void InitializeBoard() {
     // sets all the pieces to their specific positions
     std::cout << "Initializing Board" << std::endl;
     // 1. Initialize the Tiles that are empty (rows 3 to 6)
@@ -50,25 +52,13 @@ void InitializeBoard(Tile board[8][8]) {
     std::cout << "Board was initialized" << std::endl;
 }
 
-void PrintBoard(Tile board[8][8]){
+void PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
-        for(int j = 7; j >= 0; j--)
+        for(int j = 0; j < 7; j++)
             std::cout << "[" << board[i][j].GetPiece() << "] ";
         std::cout << "" << std::endl;
     }
-}
-
-void MovePiece(Tile board[8][8]){
-
-}
-
-void CheckTile(Tile board[8][8]) {
-    std::string tilePosition;
-    std::cin >> tilePosition;
-    int column = tilePosition[0] - 'a';
-    int row = tilePosition[1] - '1';
-    std::cout << "There is a " << board[row][column].GetPiece() << " in " << tilePosition << std::endl;
 }
 
 std::string CoordinatesToPosition(int row, int column){
@@ -79,16 +69,44 @@ std::pair<int, int> PositionToCoordinates(std::string position){
     return std::pair<int, int> (position[1] - '1', position[0] - 'a');
 }
 
+void MovePiece(std::string start, std::string end){
+    // for this function to happen, the move MUST be legal (checks before calling the function)
+    std::pair<int, int> a = PositionToCoordinates(start);
+    std::pair<int, int> b = PositionToCoordinates(end);
+
+    std::cout << a.first << a.second << std::endl;
+    std::cout << b.first << b.second << std::endl;
+    std::cout << board[a.first][a.second].GetPiece() << std::endl;
+    std::cout << board[b.first][b.second].GetPiece() << std::endl;
+
+    // pass all the information from a to b
+    board[a.first][a.second].MovePiece(board[b.first][b.second]);
+
+    std::cout << board[a.first][a.second].GetPiece() << std::endl;
+    std::cout << board[b.first][b.second].GetPiece() << std::endl;
+
+}
+
+void CheckTile() {
+    std::string tilePosition;
+    std::cin >> tilePosition;
+    int column = tilePosition[0] - 'a';
+    int row = tilePosition[1] - '1';
+    std::cout << "There is a " << board[row][column].GetPiece() << " in " << tilePosition << std::endl;
+}
+
+
 
 int main()
 {
     // used for logic, prints almost everything in   terminal
-    Tile board[8][8];
-    InitializeBoard(board);
-    PrintBoard(board);
-    int a, b;
-    std::cin >> a >> b;
-    std::cout << CoordinatesToPosition(a, b) << std::endl;
+    InitializeBoard();
+    PrintBoard();
+    std::string a, b;
+    std::cin >> a;
+    std::cin >> b;
+    MovePiece(a, b);
+    PrintBoard();
 
     // used for display
     sf::RenderWindow window(sf::VideoMode({591, 591}), "My Chess Game");
