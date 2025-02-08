@@ -6,39 +6,48 @@
 
 Tile board[8][8];
 
-std::string CoordinatesToPosition(int row, int column){
+std::string CtoP(int row, int column){
      return std::string(1, column + 'a') + std::string(1, row + '1');
 }
 
-std::pair<int, int> PositionToCoordinates(std::string position){
+std::pair<int, int> PtoC(std::string position){
     return std::pair<int, int> (position[1] - '1', position[0] - 'a');
 }
 
 std::vector<std::string> LegalMoves(std::string position, bool turn) {
     // must check each piece legal moves
     std::vector<std::string> moves;
-    std::pair<int, int> c = PositionToCoordinates(position);
-    Tile& aTile = board[c.first][c.second];
+    auto [row, col] = PtoC(position);
+    Tile& aTile = board[row][col];
 
-    if (aTile.GetPlayer() == (!turn)){
+    if (aTile.GetPlayer() != turn){
         std::cout << "It is not this player's turn!" << std::endl;
         return moves;
     }
 
     if(aTile.GetPiece() == "P") {
         int forward = aTile.GetPlayer()? -1 : 1;
-        if(board[c.first + 1*forward][c.second + 1].GetPlayer() == (!turn) && c.second + 1 < 8)
-            moves.push_back(CoordinatesToPosition(c.first + 1*forward, c.second + 1));
-        if(board[c.first + 1*forward][c.second - 1].GetPlayer() == (!turn) && c.second - 1 > 0)
-            moves.push_back(CoordinatesToPosition(c.first + 1*forward, c.second - 1));    
-        if(board[c.first + 1*forward][c.second].GetPlayer() == turn)
+        if(board[row + 1*forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8)
+            moves.push_back(CtoP(row + 1*forward, col + 1));
+        if(board[row + 1*forward][col - 1].GetPlayer() == (!turn) && col - 1 > 0)
+            moves.push_back(CtoP(row + 1*forward, col - 1));    
+        if(board[row + 1*forward][col].GetPlayer() == turn)
             return moves; 
-        moves.push_back(CoordinatesToPosition(c.first + 1*forward, c.second));
-        if(c.first == 1 || c.second == 6)
-            moves.push_back(CoordinatesToPosition(c.first + 2*forward, c.second));
+        moves.push_back(CtoP(row + 1*forward, col));
+        if(row == 1 || col == 6)
+            moves.push_back(CtoP(row + 2*forward, col));
     }
     if(aTile.GetPiece() == "R") {
-
+        bool up = true, down = true, left = true, right = true;
+        for(int n = 1; n < 8; n++){
+            // moves up
+            if (up && row + n < 8){
+                if (board[row + n][col].GetPlayer() == (!turn)){
+                    moves.push_back(CtoP(row + n, col));
+                    up = false;
+            }
+            }
+        }
     }
     if(aTile.GetPiece() == "N") {
 
@@ -114,8 +123,8 @@ void PrintBoard(){
 
 void MovePiece(std::string start, std::string end){
     // for this function to happen, the move MUST be legal (checks before calling the function)
-    std::pair<int, int> a = PositionToCoordinates(start);
-    std::pair<int, int> b = PositionToCoordinates(end);
+    std::pair<int, int> a = PtoC(start);
+    std::pair<int, int> b = PtoC(end);
 
     // pass all the information from a to b
     board[a.first][a.second].MovePiece(board[b.first][b.second]);
