@@ -1,10 +1,8 @@
 #pragma once
-#include <array>
 #include <string>
-#include <vector>
 
 class Tile {
-    std::string pieceName; // 
+    std::string pieceName; // one letter name, could change to char
     char playerPiece; // -1 if empty; 0 for white, 1 for black
 
 public:

@@ -18,21 +18,20 @@ void InitializeBoard() {
 
     // 2. Initialize the pawns
     for(int i = 0; i < 8; i++){
-        board[1][i] = Tile("pawn", 0);
-        board[6][i] = Tile("pawn", 1);
+        board[1][i] = Tile("P", 0);
+        board[6][i] = Tile("P", 1);
     }
 
     // 3. Initialize pieces from the first and last row
-
     // 3.1 Rooks, Knights and Bishops
     for(int i = 0; i < 3; i++){ // loop for pieces 0=rook, 1=knight, 2=bishop
         for(int j = 0; j < 2; j++){ // loop for players
             int playerRow = j * 7; 
-            std::string piece = "rook";
+            std::string piece = "R";
             if(i == 1)
-                piece = "knight";
+                piece = "N";
             if(i == 2)
-                piece = "bishop";
+                piece = "B";
 
             board[playerRow][i] = Tile(piece, j);
             board[playerRow][7-i] = Tile(piece, j);
@@ -43,8 +42,8 @@ void InitializeBoard() {
 
     for(int j = 0; j < 2; j++){
         int playerRow =  j*7;
-        board[playerRow][3] = Tile("queen", j);
-        board[playerRow][4] = Tile("king", j);
+        board[playerRow][3] = Tile("Q", j);
+        board[playerRow][4] = Tile("K", j);
     }
     
 
@@ -55,8 +54,9 @@ void PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
         for(int j = 0; j < 7; j++)
-            std::cout << "[" << board[i][j].GetPiece() << "] ";
+            std::cout << "[" << std::setw(2) << board[i][j].GetPiece() << "] ";
         std::cout << "" << std::endl;
+        std::cout << "\n";
     }
 }
 
@@ -89,7 +89,7 @@ void CheckTile() {
 
 int main()
 {
-    // used for logic, prints almost everything in   terminal
+    // used for logic, prints almost everything in terminal
     InitializeBoard();
     PrintBoard();
     std::string a, b;
@@ -98,7 +98,8 @@ int main()
     MovePiece(a, b);
     PrintBoard();
 
-    // used for display
+    // used for display, not being used at the moment
+    /*
     sf::RenderWindow window(sf::VideoMode({591, 591}), "My Chess Game");
     sf::CircleShape shape(100.f);
     shape.setFillColor(sf::Color::Green);
@@ -125,5 +126,6 @@ int main()
     }
 
     TextureManager::Clear();
+    */
     return 0;
 }
