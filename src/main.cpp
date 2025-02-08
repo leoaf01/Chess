@@ -1,11 +1,8 @@
 #include <SFML/Graphics.hpp>
 #include "helper/TextureManager.h" // uses 2.5.1 logic, some stuff has changed
 #include "helper/Tile.h"
-#include <unordered_map>
 #include <iostream>
 #include <array>
-
-static std::unordered_map<int, char> columns = {{1,'a'},{2,'b'},{3,'c'},{4,'d'},{5,'e'},{6,'f'},{7,'g'},{8,'h'}};
 
 void InitializeBoard(Tile board[8][8]) {
     // sets all the pieces to their specific positions
@@ -55,11 +52,15 @@ void InitializeBoard(Tile board[8][8]) {
 
 void PrintBoard(Tile board[8][8]){
     std::cout << "Printing board" << std::endl;
-    for(int i = 0; i < 8; i++){
-        for(int j = 0; j < 8; j++)
+    for(int i = 7; i >= 0; i--){
+        for(int j = 7; j >= 0; j--)
             std::cout << "[" << board[i][j].GetPiece() << "] ";
         std::cout << "" << std::endl;
     }
+}
+
+void MovePiece(Tile board[8][8]){
+
 }
 
 void CheckTile(Tile board[8][8]) {
@@ -70,6 +71,14 @@ void CheckTile(Tile board[8][8]) {
     std::cout << "There is a " << board[row][column].GetPiece() << " in " << tilePosition << std::endl;
 }
 
+std::string CoordinatesToPosition(int row, int column){
+     return std::string(1, column + 'a') + std::string(1, row + '1');
+}
+
+std::pair<int, int> PositionToCoordinates(std::string position){
+    return std::pair<int, int> (position[1] - '1', position[0] - 'a');
+}
+
 
 int main()
 {
@@ -77,7 +86,9 @@ int main()
     Tile board[8][8];
     InitializeBoard(board);
     PrintBoard(board);
-    CheckTile(board);
+    int a, b;
+    std::cin >> a >> b;
+    std::cout << CoordinatesToPosition(a, b) << std::endl;
 
     // used for display
     sf::RenderWindow window(sf::VideoMode({591, 591}), "My Chess Game");
