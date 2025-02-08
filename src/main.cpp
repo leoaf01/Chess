@@ -2,8 +2,59 @@
 #include "helper/TextureManager.h" // uses 2.5.1 logic, some stuff has changed
 #include "helper/Tile.h"
 #include <iostream>
+#include <vector>
 
 Tile board[8][8];
+
+std::string CoordinatesToPosition(int row, int column){
+     return std::string(1, column + 'a') + std::string(1, row + '1');
+}
+
+std::pair<int, int> PositionToCoordinates(std::string position){
+    return std::pair<int, int> (position[1] - '1', position[0] - 'a');
+}
+
+std::vector<std::string> LegalMoves(std::string position, bool turn) {
+    // must check each piece legal moves
+    std::vector<std::string> moves;
+    std::pair<int, int> c = PositionToCoordinates(position);
+    Tile& aTile = board[c.first][c.second];
+
+    if (aTile.GetPlayer() == (!turn)){
+        std::cout << "It is not this player's turn!" << std::endl;
+        return moves;
+    }
+
+    if(aTile.GetPiece() == "P") {
+        int forward = aTile.GetPlayer()? -1 : 1;
+        if(board[c.first + 1*forward][c.second + 1].GetPlayer() == (!turn) && c.second + 1 < 8)
+            moves.push_back(CoordinatesToPosition(c.first + 1*forward, c.second + 1));
+        if(board[c.first + 1*forward][c.second - 1].GetPlayer() == (!turn) && c.second - 1 > 0)
+            moves.push_back(CoordinatesToPosition(c.first + 1*forward, c.second - 1));    
+        if(board[c.first + 1*forward][c.second].GetPlayer() == turn)
+            return moves; 
+        moves.push_back(CoordinatesToPosition(c.first + 1*forward, c.second));
+        if(c.first == 1 || c.second == 6)
+            moves.push_back(CoordinatesToPosition(c.first + 2*forward, c.second));
+    }
+    if(aTile.GetPiece() == "R") {
+
+    }
+    if(aTile.GetPiece() == "N") {
+
+    }
+    if(aTile.GetPiece() == "B") {
+
+    }
+    if(aTile.GetPiece() == "Q") {
+
+    }
+    if(aTile.GetPiece() == "K") {
+
+    }
+    
+    return moves;
+}
 
 void InitializeBoard() {
     // sets all the pieces to their specific positions
@@ -54,19 +105,12 @@ void PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
         for(int j = 0; j < 7; j++)
-            std::cout << "[" << std::setw(2) << board[i][j].GetPiece() << "] ";
+            std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << "] ";
         std::cout << "" << std::endl;
         std::cout << "\n";
     }
 }
 
-std::string CoordinatesToPosition(int row, int column){
-     return std::string(1, column + 'a') + std::string(1, row + '1');
-}
-
-std::pair<int, int> PositionToCoordinates(std::string position){
-    return std::pair<int, int> (position[1] - '1', position[0] - 'a');
-}
 
 void MovePiece(std::string start, std::string end){
     // for this function to happen, the move MUST be legal (checks before calling the function)
@@ -92,11 +136,12 @@ int main()
     // used for logic, prints almost everything in terminal
     InitializeBoard();
     PrintBoard();
-    std::string a, b;
+    std::string a;
     std::cin >> a;
-    std::cin >> b;
-    MovePiece(a, b);
-    PrintBoard();
+
+    std::vector<std::string> moves = LegalMoves(a, 0);
+    for(int i = 0; i < moves.size(); i++)
+        std::cout << moves.at(i) << " \n";
 
     // used for display, not being used at the moment
     /*
