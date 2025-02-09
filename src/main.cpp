@@ -41,7 +41,7 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
     if(aTile.GetPiece() == "R") {
         bool advance[] = {true, true, true, true};
         for(int n = 0; n < 8; n++){
-            bool conditions[4] = {row + n < 8, row - n > 0, col + n < 8, col - n > 0};
+            bool conditions[4] = {row + n < 8, row - n >= 0, col + n < 8, col - n >= 0};
             int rows[4] = {row + n, row - n, col, col};
             int cols[4] = {row, row, col + n, col - n};
             for(int i = 0; i < 4; i++){
@@ -63,7 +63,21 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
         }
     }
     if(aTile.GetPiece() == "N") {
-
+        for(int vertical = 1; vertical < 3; vertical++){
+            int horizontal = vertical == 1? 2 : 1;
+            int dir[2] = {1, -1};
+            for(int i = 0; i < 2; i++){
+                for(int j = 0; j < 2; j++){
+                    int jumpV = row + vertical*dir[i];
+                    int jumpH = col + horizontal*dir[j];
+                    if(jumpV >= 8 || jumpV < 0 || jumpH >= 8 || jumpH < 0)
+                        continue;
+                    Tile& currentTile = board[jumpV][jumpH];
+                    if(currentTile.GetPlayer() != turn)
+                        moves.push_back(CtoP(jumpV, jumpH));
+                }
+            }            
+        }
     }
     if(aTile.GetPiece() == "B") {
 
@@ -157,7 +171,7 @@ int main()
 {
     // used for logic, prints almost everything in terminal
     InitializeBoard();
-    board[5][5] = Tile("R", 0);
+    board[5][6] = Tile("N", 0);
     PrintBoard();
     std::string a;
     std::cin >> a;
