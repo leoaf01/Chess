@@ -66,7 +66,7 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
     if(aTile.GetPiece() == "B") {
         bool advance[] = {true, true, true, true};
         for(int n = 1; n < 8; n++){
-            bool conditions[4] = {row + n < 8, row - n >= 0, col + n < 8, col - n >= 0};
+            bool conditions[4] = {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0};
             int rows[4] = {row + n, row + n, row - n, row - n};
             int cols[4] = {col + n, col - n, col + n, col - n};
             for(int i = 0; i < 4; i++){
@@ -106,7 +106,37 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
         }
     }
     if(aTile.GetPiece() == "Q") {
+        bool advance[2][4] = {{true, true, true, true}, // for rook moves
+                              {true, true, true, true}};// for bishop moves
+        for(int n = 0; n < 8; n++){
+            bool conditions[2][4] = 
+                {{row + n < 8, row - n >= 0, col + n < 8, col - n >= 0},
+                 {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0}};
+            int rows[2][4] = {{row + n, row - n, row, row},
+                              {row + n, row + n, row - n, row - n}};
+            int cols[2][4] = {{col, col, col + n, col - n},
+                              {col + n, col - n, col + n, col - n}};
+            for(int i = 0; i < 4; i++){
+                for(int j = 0; j < 2; j++){
+                    std::cout << rows[j][i] << ", " << cols[j][i] << std::endl;
+                    if(!advance[j][i])
+                        continue;
+                    if(!conditions[j][i]){
+                        advance[j][i] = false;
+                        continue;
+                    }
 
+                    Tile& currentTile = board[rows[j][i]][cols[j][i]];
+                    if(currentTile.GetPlayer() == turn){
+                        advance[j][i] = false;
+                        continue;
+                    }
+                    moves.push_back(CtoP(rows[j][i], cols[j][i]));
+                    if(currentTile.GetPlayer() == (!turn))
+                        advance[j][i] = false;
+                }
+            }
+        }
     }
     if(aTile.GetPiece() == "K") {
 
@@ -194,7 +224,7 @@ int main()
 {
     // used for logic, prints almost everything in terminal
     InitializeBoard();
-    board[5][6] = Tile("B", 0);
+    board[5][6] = Tile("Q", 0);
     PrintBoard();
     std::string a;
     std::cin >> a;
