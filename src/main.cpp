@@ -40,10 +40,10 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
     }
     if(aTile.GetPiece() == "R") {
         bool advance[] = {true, true, true, true};
-        for(int n = 0; n < 8; n++){
+        for(int n = 1; n < 8; n++){
             bool conditions[4] = {row + n < 8, row - n >= 0, col + n < 8, col - n >= 0};
-            int rows[4] = {row + n, row - n, col, col};
-            int cols[4] = {row, row, col + n, col - n};
+            int rows[4] = {row + n, row - n, row, row};
+            int cols[4] = {col, col, col + n, col - n};
             for(int i = 0; i < 4; i++){
                 if(!advance[i])
                     continue;
@@ -51,14 +51,40 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
                     advance[i] = false;
                     continue;
                 }
+                std::cout << rows[i] << " " << cols[i] << std::endl;
                 Tile& currentTile = board[rows[i]][cols[i]];
-                if(currentTile.GetPlayer() == turn)
+                if(currentTile.GetPlayer() == turn){
+                    advance[i] = false;
                     continue;
-                if(currentTile.GetPlayer() != turn){
-                    moves.push_back(CtoP(rows[i], cols[i]));
-                    if(currentTile.GetPlayer() == (!turn))
-                        advance[i] = false;
                 }
+                moves.push_back(CtoP(rows[i], cols[i]));
+                if(currentTile.GetPlayer() == (!turn))
+                    advance[i] = false;
+            }
+        }
+    }
+    if(aTile.GetPiece() == "B") {
+        bool advance[] = {true, true, true, true};
+        for(int n = 1; n < 8; n++){
+            bool conditions[4] = {row + n < 8, row - n >= 0, col + n < 8, col - n >= 0};
+            int rows[4] = {row + n, row + n, row - n, row - n};
+            int cols[4] = {col + n, col - n, col + n, col - n};
+            for(int i = 0; i < 4; i++){
+                if(!advance[i])
+                    continue;
+                if(!conditions[i]){
+                    advance[i] = false;
+                    continue;
+                }
+
+                Tile& currentTile = board[rows[i]][cols[i]];
+                if(currentTile.GetPlayer() == turn){
+                    advance[i] = false;
+                    continue;
+                }
+                moves.push_back(CtoP(rows[i], cols[i]));
+                if(currentTile.GetPlayer() == (!turn))
+                    advance[i] = false;
             }
         }
     }
@@ -78,9 +104,6 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
                 }
             }            
         }
-    }
-    if(aTile.GetPiece() == "B") {
-
     }
     if(aTile.GetPiece() == "Q") {
 
@@ -171,7 +194,7 @@ int main()
 {
     // used for logic, prints almost everything in terminal
     InitializeBoard();
-    board[5][6] = Tile("N", 0);
+    board[5][6] = Tile("B", 0);
     PrintBoard();
     std::string a;
     std::cin >> a;
