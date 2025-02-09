@@ -19,6 +19,7 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
     std::vector<std::string> moves;
     auto [row, col] = PtoC(position);
     Tile& aTile = board[row][col];
+    
 
     if (aTile.GetPlayer() != turn){
         std::cout << "It is not this player's turn!" << std::endl;
@@ -38,14 +39,26 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
             moves.push_back(CtoP(row + 2*forward, col));
     }
     if(aTile.GetPiece() == "R") {
-        bool up = true, down = true, left = true, right = true;
-        for(int n = 1; n < 8; n++){
-            // moves up
-            if (up && row + n < 8){
-                if (board[row + n][col].GetPlayer() == (!turn)){
-                    moves.push_back(CtoP(row + n, col));
-                    up = false;
-            }
+        bool advance[] = {true, true, true, true};
+        for(int n = 0; n < 8; n++){
+            bool conditions[4] = {row + n < 8, row - n > 0, col + n < 8, col - n > 0};
+            int rows[4] = {row + n, row - n, col, col};
+            int cols[4] = {row, row, col + n, col - n};
+            for(int i = 0; i < 4; i++){
+                if(!advance[i])
+                    continue;
+                if (!conditions[i]){
+                    advance[i] = false;
+                    continue;
+                }
+                Tile& currentTile = board[rows[i]][cols[i]];
+                if(currentTile.GetPlayer() == turn)
+                    continue;
+                if(currentTile.GetPlayer() != turn){
+                    moves.push_back(CtoP(rows[i], cols[i]));
+                    if(currentTile.GetPlayer() == (!turn))
+                        advance[i] = false;
+                }
             }
         }
     }
@@ -113,7 +126,7 @@ void InitializeBoard() {
 void PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
-        for(int j = 0; j < 7; j++)
+        for(int j = 0; j <= 7; j++)
             std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << "] ";
         std::cout << "" << std::endl;
         std::cout << "\n";
@@ -144,6 +157,7 @@ int main()
 {
     // used for logic, prints almost everything in terminal
     InitializeBoard();
+    board[5][5] = Tile("R", 0);
     PrintBoard();
     std::string a;
     std::cin >> a;
