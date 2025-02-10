@@ -139,7 +139,28 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
         }
     }
     if(aTile.GetPiece() == "K") {
-        
+        int n = 1;
+        bool conditions[2][4] = 
+            {{row + n < 8, row - n >= 0, col + n < 8, col - n >= 0},
+                {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0}};
+        int rows[2][4] = {{row + n, row - n, row, row},
+                            {row + n, row + n, row - n, row - n}};
+        int cols[2][4] = {{col, col, col + n, col - n},
+                            {col + n, col - n, col + n, col - n}};
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 2; j++){
+                std::cout << rows[j][i] << ", " << cols[j][i] << std::endl;
+                if(!conditions[j][i]){
+                    continue;
+                }
+
+                Tile& currentTile = board[rows[j][i]][cols[j][i]];
+                if(currentTile.GetPlayer() == turn){
+                    continue;
+                }
+                moves.push_back(CtoP(rows[j][i], cols[j][i]));
+            }
+        }
     }
     
     return moves;
@@ -224,7 +245,7 @@ int main()
 {
     // used for logic, prints almost everything in terminal
     InitializeBoard();
-    board[5][6] = Tile("Q", 0);
+    board[5][6] = Tile("K", 0);
     PrintBoard();
     std::string a;
     std::cin >> a;
