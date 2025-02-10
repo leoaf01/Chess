@@ -108,7 +108,7 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
     if(aTile.GetPiece() == "Q") {
         bool advance[2][4] = {{true, true, true, true}, // for rook moves
                               {true, true, true, true}};// for bishop moves
-        for(int n = 0; n < 8; n++){
+        for(int n = 1; n < 8; n++){
             bool conditions[2][4] = 
                 {{row + n < 8, row - n >= 0, col + n < 8, col - n >= 0},
                  {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0}};
@@ -139,7 +139,7 @@ std::vector<std::string> LegalMoves(std::string position, bool turn) {
         }
     }
     if(aTile.GetPiece() == "K") {
-
+        
     }
     
     return moves;
