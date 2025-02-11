@@ -1,7 +1,7 @@
 #include <SFML/Graphics.hpp>
 #include "helper/TextureManager.h" // uses 2.5.1 logic, some stuff has changed
 #include "helper/Tile.h"
-#include "helper/Board.h"
+//#include "helper/Board.h"
 #include <iostream>
 #include <vector>
 
@@ -245,8 +245,8 @@ void CheckTile() {
 int main()
 {
     // used for logic, prints almost everything in terminal
-    Board board;
-    //board[5][6] = Tile("K", 0);
+    Tile board[8][8];
+    board[5][6] = Tile("K", 0);
     PrintBoard();
     std::string a;
     std::cin >> a;
