@@ -1,8 +1,17 @@
 #include "helper/Tile.h"
 
-Tile::Tile(std::string piece, char player) {
+Tile::Tile(int r, int c){
+    pieceName = "";
+    playerPiece = -1;
+    row = r;
+    col = c;
+}
+
+Tile::Tile(std::string piece, char player, int r, int c) {
     pieceName = piece;
     playerPiece = player;
+    row = r;
+    col = c;
 }
 
 void Tile::MovePiece(Tile& destination) {
@@ -14,13 +23,20 @@ void Tile::MovePiece(Tile& destination) {
 }
 
 std::string Tile::GetPiece(){
-    return pieceName;
+   return pieceName;
 }
 
 char Tile::GetPlayer(){
     return playerPiece;
 }
 
+int Tile::GetRow(){
+    return row;
+}
+
+int Tile::GetCol(){
+    return col;
+}
 
 void Tile::SetPlayer(char player) {
     playerPiece = player;
