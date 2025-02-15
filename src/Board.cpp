@@ -4,14 +4,14 @@ Board::Board(){
     // 1. Initialize the Tiles that are empty (rows 3 to 6)
     for(int i = 2; i < 6; i++){
         for(int j = 0; j < 8; j++){
-            board[i][j] = Tile();
+            board[i][j] = Tile(i, j);
         }
     }
 
     // 2. Initialize the pawns
     for(int i = 0; i < 8; i++){
-        board[1][i] = Tile("P", 0);
-        board[6][i] = Tile("P", 1);
+        board[1][i] = Tile("P", 0, 1, i);
+        board[6][i] = Tile("P", 1, 6, i);
     }
 
     // 3. Initialize pieces from the first and last row
@@ -25,17 +25,16 @@ Board::Board(){
             if(i == 2)
                 piece = "B";
 
-            board[playerRow][i] = Tile(piece, j);
-            board[playerRow][7-i] = Tile(piece, j);
+            board[playerRow][i] = Tile(piece, j, playerRow, i);
+            board[playerRow][7-i] = Tile(piece, j, playerRow, 7-i);
         }
     }
 
     // 3.2 Kings and Queens
-
     for(int j = 0; j < 2; j++){
         int playerRow =  j*7;
-        board[playerRow][3] = Tile("Q", j);
-        board[playerRow][4] = Tile("K", j);
+        board[playerRow][3] = Tile("Q", j, playerRow, 3);
+        board[playerRow][4] = Tile("K", j, playerRow, 4);
     }
 }
 
@@ -44,13 +43,14 @@ std::vector<std::string> Board::Moves(std::string position, bool turn){
     std::vector<std::string> moves;
     auto [row, col] = PtoC(position);
     Tile& aTile = board[row][col];
-    
+    std::string notation = "" + aTile.GetPiece();
 
     if (aTile.GetPlayer() != turn){
         return moves;
     }
 
     if(aTile.GetPiece() == "P") {
+        notation = "";
         int forward = aTile.GetPlayer()? -1 : 1;
         if(board[row + 1*forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8)
             moves.push_back(CtoP(row + 1*forward, col + 1));

@@ -22,3 +22,19 @@ public:
 
 std::string CtoP(int row, int column);
 std::pair<int, int> PtoC(std::string pos);
+
+struct Move {
+    char movingPiece;
+    char takes = false; // x
+    char check = false; // +
+    char promotion = false; // a8=Q - maybe a string
+    std::string castling = ""; // 0-0 or 0-0-0
+    char checkmate = false;  // #
+    bool rowSimilar; // must specify column
+    bool colSimilar; // must specify row
+
+    Tile& fromTile;
+    Tile& toTile;
+    
+
+};
