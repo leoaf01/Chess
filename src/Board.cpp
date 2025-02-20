@@ -44,12 +44,6 @@ Board::Board(){
     }
 }
 
-Move::Move(std::string n, Tile& from, Tile& to){
-    notation = n;
-    fromTile = from;
-    toTile = to;
-}
-
 void Board::PieceMoves(std::vector<Move>& moves, Tile& aTile, bool turn){
     // checks all possible moves from a piece, pins and checks unincluded
     //auto [row, col] = PtoC(position);
@@ -72,7 +66,7 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile& aTile, bool turn){
             moves.push_back(Move(notation, aTile, board[row+1*forward][col-1]));
         }
         if(board[row + 1*forward][col].GetPlayer() == turn)
-            return moves; 
+            return; 
         moves.push_back(Move(CtoP(row + 1*forward, col), aTile, board[row+1*forward][col]));
         if(row == 1 || col == 6)
             moves.push_back(Move(CtoP(row + 2*forward, col), aTile, board[row+2*forward][col]));
@@ -195,6 +189,7 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile& aTile, bool turn){
                 if(currentTile.GetPlayer() == turn){
                     continue;
                 }
+                Move("x",aTile, board[rows[j][i]][cols[j][i]]);
                 moves.push_back(CtoP(rows[j][i], cols[j][i]));
             }
         }
@@ -202,10 +197,22 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile& aTile, bool turn){
     return moves;
 }
 
+void InsertMove(std::vector<Move>& moves, Move new_move){
+    for(Move m : moves){
+        if(m.fromTile.GetPiece() != new_move.fromTile.GetPiece())
+            return;
+        
+        if(m.fromTile.GetRow() == new_move.fromTile.GetRow()){
+
+        }
+    }
+    moves.push_back(new_move);
+}
+
 std::vector<Move> Board::PossibleMoves(bool turn){
     std::vector<Move> moves;
-    for(auto aTile : pieces[turn]) {
-        
+    for(auto piece : pieces[turn]) {
+        PieceMoves(moves, piece, turn);
     }
 }
 

@@ -9,7 +9,11 @@
 class Board {
     Tile board[8][8];
     std::vector<Tile&> pieces[2]; // idea for accessing all pieces of one player
-
+    std::vector<Tile&> rooks[2];
+    std::vector<Tile&> bishops[2];
+    std::vector<Tile&> knights[2];
+    std::vector<Tile&> queens[2];
+    
 public:
     Board();
     //void InitializeBoard(); // maybe not needed since constructor can initialize
@@ -39,3 +43,4 @@ struct Move {
     Move(std::string n, Tile& from, Tile& to)
         : notation(n), fromTile(from), toTile(to) {}
 };
+
