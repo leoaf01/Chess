@@ -70,7 +70,7 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
     //auto [row, col] = PtoC(position);
     //Tile& aTile = board[row][col];
     int row = aTile->GetRow(), col = aTile->GetCol();
-    std::string notation = "" + aTile->GetPiece();
+    std::string notation = "";
 
     if (aTile->GetPlayer() != turn)
         return;
@@ -79,12 +79,12 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
         notation = ColToLetter(col);
         int forward = turn? -1 : 1;
         if(board[row + forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8){
-            notation += "x" + CtoP(row + forward, col + 1);
-            moves.push_back(Move(notation, aTile, &board[row+forward][col+1]));
+            std::string extra = "x" + CtoP(row + forward, col + 1);
+            moves.push_back(Move(notation + extra, aTile, &board[row+forward][col+1]));
         }
         if(board[row + forward][col - 1].GetPlayer() == (!turn) && col - 1 >= 0){
-            notation += "x" + CtoP(row + forward, col - 1);
-            moves.push_back(Move(notation, aTile, &board[row+forward][col-1]));
+            std::string extra = "x" + CtoP(row + forward, col - 1);
+            moves.push_back(Move(notation + extra, aTile, &board[row+forward][col-1]));
         }
         if(board[row + forward][col].GetPlayer() == turn)
             return; 
@@ -259,7 +259,7 @@ void Board::PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
         for(int j = 0; j <= 7; j++)
-            std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << "] ";
+            std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << board[i][j].GetPlayer() + 1 << "] ";
         std::cout << "" << std::endl;
         std::cout << "\n";
     }
