@@ -92,6 +92,7 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
         if(row == 1 || row == 6)
             moves.push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
         // promotion missing
+        // en passant missing
     }
     if(aTile->GetPiece() == "R") {
         bool advance[] = {true, true, true, true};
@@ -229,6 +230,7 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
             }
         }
     }
+    // castling missing
 }
 
 void InsertMove(std::vector<Move>& moves, Move new_move){
@@ -280,6 +282,7 @@ void Board::MovePiece(Move m, bool turn){
             p = m.toTile;
     }
     m.fromTile->MovePiece(m.toTile);
+    log.push_back(m);
 }
 
 bool Board::CheckOpponent(bool turn){
@@ -292,7 +295,8 @@ bool Board::CheckOpponent(bool turn){
 
 std::vector<Move> Board::LegalMoves(bool turn){
     Board b(pieces);
-    std::vector<Move> moves, possibles = PossibleMoves(turn), copyMoves = b.PossibleMoves(turn);
+    std::vector<Move> moves;
+    std::vector<Move> possibles = PossibleMoves(turn), copyMoves = b.PossibleMoves(turn);
 
     for(int i = 0; i < possibles.size(); i++){
         b.MovePiece(copyMoves.at(i), turn);

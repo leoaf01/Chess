@@ -12,10 +12,12 @@ int main()
     std::cout << "Board Initialized\n";
 
     bool turn = 0;
+    int count = 1;
     while(board.LegalMoves(turn).size() > 0){
         board.PrintBoard();
         std::cout << "Choose your move, player " << turn + 1 << ".\n";
         std::vector<Move> moves = board.LegalMoves(turn);
+        // std::vector<Move> possibles = board.PossibleMoves(turn);
         for(int i = 0; i < moves.size(); i++)
             std::cout << i << ". " << moves.at(i).notation << std::endl;
             int input;
@@ -25,6 +27,7 @@ int main()
                 continue;
             }
             board.MovePiece(moves.at(input), turn);
+            count++;
             turn = !turn;
     }
 
