@@ -56,19 +56,19 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
 
     if(aTile->GetPiece() == "P") {
         notation = "";
-        int forward = turn? 1 : -1;
-        if(board[row + 1*forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8){
-            notation = ColToLetter(col) + "x" + CtoP(row + 1*forward, col + 1);
-            moves.push_back(Move(notation, aTile, &board[row+1*forward][col+1]));
+        int forward = turn? -1 : 1;
+        if(board[row + forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8){
+            notation = ColToLetter(col) + "x" + CtoP(row + forward, col + 1);
+            moves.push_back(Move(notation, aTile, &board[row+forward][col+1]));
         }
-        if(board[row + 1*forward][col - 1].GetPlayer() == (!turn) && col - 1 >= 0){
-            notation = ColToLetter(col) + "x" + CtoP(row + 1*forward, col - 1);
-            moves.push_back(Move(notation, aTile, &board[row+1*forward][col-1]));
+        if(board[row + forward][col - 1].GetPlayer() == (!turn) && col - 1 >= 0){
+            notation = ColToLetter(col) + "x" + CtoP(row + forward, col - 1);
+            moves.push_back(Move(notation, aTile, &board[row+forward][col-1]));
         }
-        if(board[row + 1*forward][col].GetPlayer() == turn)
+        if(board[row + forward][col].GetPlayer() == turn)
             return; 
-        moves.push_back(Move(CtoP(row + 1*forward, col), aTile, &board[row+1*forward][col]));
-        if(row == 1 || col == 6)
+        moves.push_back(Move(CtoP(row + forward, col), aTile, &board[row+forward][col]));
+        if(row == 1 || row == 6)
             moves.push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
         // promotion missing
     }
@@ -138,6 +138,8 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
                     if(jumpV >= 8 || jumpV < 0 || jumpH >= 8 || jumpH < 0)
                         continue;
                     Tile* currentTile = &board[jumpV][jumpH];
+                    if(currentTile->GetPlayer() == turn)
+                        continue;
                     notation = "N" + CtoP(jumpV, jumpH);
                     if(currentTile->GetPlayer() == (!turn))
                         notation = "Nx" + CtoP(jumpV, jumpH);
@@ -213,10 +215,12 @@ void InsertMove(std::vector<Move>& moves, Move new_move){
 }
 
 std::vector<Move> Board::PossibleMoves(bool turn){
+    std::cout << "PossibleMoves entered\n";
     std::vector<Move> moves;
-    for(auto piece : pieces[turn]) {
+    for(auto piece : pieces[turn]) {    
         PieceMoves(moves, piece, turn);
     }
+    return moves;
 }
 
 std::string CtoP(int row, int column){

@@ -9,13 +9,12 @@ int main()
 {
     // used for logic, prints in terminal
     Board board;
+    std::cout << "Board Initialized\n";
     board.PrintBoard();
-    std::string a;
-    std::cin >> a;
-
-    std::vector<std::string> moves = board.Moves(a, 0);
+    std::vector<Move> moves = board.PossibleMoves(1);
+    std::cout << "Moves saved\n"; 
     for(int i = 0; i < moves.size(); i++)
-        std::cout << moves.at(i) << " \n";
+        std::cout << moves.at(i).notation << std::endl;
 
     // used for display, not being used at the moment
     /*
