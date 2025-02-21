@@ -10,11 +10,10 @@ int main()
     // used for logic, prints in terminal
     Board board;
     std::cout << "Board Initialized\n";
-
+    board.PrintBoard();
     bool turn = 0;
     int count = 1;
     while(board.LegalMoves(turn).size() > 0){
-        board.PrintBoard();
         std::cout << "Choose your move, player " << turn + 1 << ".\n";
         std::vector<Move> moves = board.LegalMoves(turn);
         // std::vector<Move> possibles = board.PossibleMoves(turn);

@@ -86,10 +86,10 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
             std::string extra = "x" + CtoP(row + forward, col - 1);
             moves.push_back(Move(notation + extra, aTile, &board[row+forward][col-1]));
         }
-        if(board[row + forward][col].GetPlayer() == turn)
+        if(board[row + forward][col].GetPlayer() != -1)
             return; 
         moves.push_back(Move(CtoP(row + forward, col), aTile, &board[row+forward][col]));
-        if(row == 1 || row == 6)
+        if((row == 1 || row == 6) && board[row + 2*forward][col].GetPlayer() == -1)
             moves.push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
         // promotion missing
         // en passant missing
@@ -294,11 +294,10 @@ bool Board::CheckOpponent(bool turn){
 }
 
 std::vector<Move> Board::LegalMoves(bool turn){
-    Board b(pieces);
-    std::vector<Move> moves;
-    std::vector<Move> possibles = PossibleMoves(turn), copyMoves = b.PossibleMoves(turn);
-
+    std::vector<Move> moves, possibles = PossibleMoves(turn);
     for(int i = 0; i < possibles.size(); i++){
+        Board b(pieces);
+        std::vector<Move> copyMoves = b.PossibleMoves(turn);
         b.MovePiece(copyMoves.at(i), turn);
         if(b.CheckOpponent(!turn) == false)
             moves.push_back(possibles.at(i));
