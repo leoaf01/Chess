@@ -4,14 +4,16 @@ Board::Board(){
     // 1. Initialize the Tiles that are empty (rows 3 to 6)
     for(int i = 2; i < 6; i++){
         for(int j = 0; j < 8; j++){
-            board[i][j] = Tile();
+            board[i][j] = Tile(i, j);
         }
     }
 
     // 2. Initialize the pawns
     for(int i = 0; i < 8; i++){
-        board[1][i] = Tile("P", 0);
-        board[6][i] = Tile("P", 1);
+        board[1][i] = Tile("P", 0, 1, i);
+        pieces[0].push_back(&board[1][i]);
+        board[6][i] = Tile("P", 1, 6, i);
+        pieces[1].push_back(&board[6][i]);
     }
 
     // 3. Initialize pieces from the first and last row
@@ -25,44 +27,74 @@ Board::Board(){
             if(i == 2)
                 piece = "B";
 
-            board[playerRow][i] = Tile(piece, j);
-            board[playerRow][7-i] = Tile(piece, j);
+            board[playerRow][i] = Tile(piece, j, playerRow, i);
+            pieces[j].push_back(&board[playerRow][i]);
+            board[playerRow][7-i] = Tile(piece, j, playerRow, 7-i);
+            pieces[j].push_back(&board[playerRow][7-i]);
         }
     }
 
     // 3.2 Kings and Queens
-
     for(int j = 0; j < 2; j++){
         int playerRow =  j*7;
-        board[playerRow][3] = Tile("Q", j);
-        board[playerRow][4] = Tile("K", j);
+        board[playerRow][3] = Tile("Q", j, playerRow, 3);
+        pieces[j].push_back(&board[playerRow][3]);
+        board[playerRow][4] = Tile("K", j, playerRow, 4);
+        pieces[j].push_back(&board[playerRow][4]);
     }
 }
 
-std::vector<std::string> Board::Moves(std::string position, bool turn){
-    // must check each piece legal moves
-    std::vector<std::string> moves;
-    auto [row, col] = PtoC(position);
-    Tile& aTile = board[row][col];
-    
+Board::Board(std::vector<Tile*> copyPieces[2]){
+    // Copies a board knowing the position of the pieces
 
-    if (aTile.GetPlayer() != turn){
-        return moves;
+    // 1. Initialize all Tiles as empty
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            board[i][j] = Tile(i, j);
+        }
     }
 
-    if(aTile.GetPiece() == "P") {
-        int forward = aTile.GetPlayer()? -1 : 1;
-        if(board[row + 1*forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8)
-            moves.push_back(CtoP(row + 1*forward, col + 1));
-        if(board[row + 1*forward][col - 1].GetPlayer() == (!turn) && col - 1 > 0)
-            moves.push_back(CtoP(row + 1*forward, col - 1));    
-        if(board[row + 1*forward][col].GetPlayer() == turn)
-            return moves; 
-        moves.push_back(CtoP(row + 1*forward, col));
-        if(row == 1 || col == 6)
-            moves.push_back(CtoP(row + 2*forward, col));
+    // 2. Assign Tiles with pieces
+    for(int i = 0; i < 2; i++){
+        for(auto p : copyPieces[i]){
+            int row = p->GetRow(), col = p->GetCol();
+            board[row][col] = Tile(p->GetPiece(), p->GetPlayer(), row, col);
+            pieces[i].push_back(&board[row][col]);
+        }
     }
-    if(aTile.GetPiece() == "R") {
+        
+}
+
+void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
+    // checks all possible moves from a piece, pins and checks unincluded
+    //auto [row, col] = PtoC(position);
+    //Tile& aTile = board[row][col];
+    int row = aTile->GetRow(), col = aTile->GetCol();
+    std::string notation = "";
+
+    if (aTile->GetPlayer() != turn)
+        return;
+
+    if(aTile->GetPiece() == "P") {
+        notation = ColToLetter(col);
+        int forward = turn? -1 : 1;
+        if(board[row + forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8){
+            std::string extra = "x" + CtoP(row + forward, col + 1);
+            moves.push_back(Move(notation + extra, aTile, &board[row+forward][col+1]));
+        }
+        if(board[row + forward][col - 1].GetPlayer() == (!turn) && col - 1 >= 0){
+            std::string extra = "x" + CtoP(row + forward, col - 1);
+            moves.push_back(Move(notation + extra, aTile, &board[row+forward][col-1]));
+        }
+        if(board[row + forward][col].GetPlayer() != -1)
+            return; 
+        moves.push_back(Move(CtoP(row + forward, col), aTile, &board[row+forward][col]));
+        if((row == 1 || row == 6) && board[row + 2*forward][col].GetPlayer() == -1)
+            moves.push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
+        // promotion missing
+        // en passant missing
+    }
+    if(aTile->GetPiece() == "R") {
         bool advance[] = {true, true, true, true};
         for(int n = 1; n < 8; n++){
             bool conditions[4] = {row + n < 8, row - n >= 0, col + n < 8, col - n >= 0};
@@ -75,18 +107,21 @@ std::vector<std::string> Board::Moves(std::string position, bool turn){
                     advance[i] = false;
                     continue;
                 }
-                Tile& currentTile = board[rows[i]][cols[i]];
-                if(currentTile.GetPlayer() == turn){
+                Tile* currentTile = &board[rows[i]][cols[i]];
+                if(currentTile->GetPlayer() == turn){
                     advance[i] = false;
                     continue;
                 }
-                moves.push_back(CtoP(rows[i], cols[i]));
-                if(currentTile.GetPlayer() == (!turn))
+                notation = "R" + CtoP(rows[i], cols[i]);
+                if(currentTile->GetPlayer() == (!turn)){
+                    notation = "Rx" + CtoP(rows[i], cols[i]);   
                     advance[i] = false;
+                }
+                moves.push_back(Move(notation, aTile, currentTile));
             }
         }
     }
-    if(aTile.GetPiece() == "B") {
+    if(aTile->GetPiece() == "B") {
         bool advance[] = {true, true, true, true};
         for(int n = 1; n < 8; n++){
             bool conditions[4] = {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0};
@@ -100,18 +135,21 @@ std::vector<std::string> Board::Moves(std::string position, bool turn){
                     continue;
                 }
 
-                Tile& currentTile = board[rows[i]][cols[i]];
-                if(currentTile.GetPlayer() == turn){
+                Tile* currentTile = &board[rows[i]][cols[i]];
+                if(currentTile->GetPlayer() == turn){
                     advance[i] = false;
                     continue;
                 }
-                moves.push_back(CtoP(rows[i], cols[i]));
-                if(currentTile.GetPlayer() == (!turn))
+                notation = "B" + CtoP(rows[i], cols[i]);
+                if(currentTile->GetPlayer() == (!turn)){
+                    notation = "Bx" + CtoP(rows[i], cols[i]);
                     advance[i] = false;
+                }
+                moves.push_back(Move(notation, aTile, currentTile));
             }
         }
     }
-    if(aTile.GetPiece() == "N") {
+    if(aTile->GetPiece() == "N") {
         for(int vertical = 1; vertical < 3; vertical++){
             int horizontal = vertical == 1? 2 : 1;
             int dir[2] = {1, -1};
@@ -121,14 +159,18 @@ std::vector<std::string> Board::Moves(std::string position, bool turn){
                     int jumpH = col + horizontal*dir[j];
                     if(jumpV >= 8 || jumpV < 0 || jumpH >= 8 || jumpH < 0)
                         continue;
-                    Tile& currentTile = board[jumpV][jumpH];
-                    if(currentTile.GetPlayer() != turn)
-                        moves.push_back(CtoP(jumpV, jumpH));
+                    Tile* currentTile = &board[jumpV][jumpH];
+                    if(currentTile->GetPlayer() == turn)
+                        continue;
+                    notation = "N" + CtoP(jumpV, jumpH);
+                    if(currentTile->GetPlayer() == (!turn))
+                        notation = "Nx" + CtoP(jumpV, jumpH);
+                    moves.push_back(Move(notation, aTile, currentTile));
                 }
             }            
         }
     }
-    if(aTile.GetPiece() == "Q") {
+    if(aTile->GetPiece() == "Q") {
         bool advance[2][4] = {{true, true, true, true}, // for rook moves
                                 {true, true, true, true}};// for bishop moves
         for(int n = 1; n < 8; n++){
@@ -148,19 +190,22 @@ std::vector<std::string> Board::Moves(std::string position, bool turn){
                         continue;
                     }
 
-                    Tile& currentTile = board[rows[j][i]][cols[j][i]];
-                    if(currentTile.GetPlayer() == turn){
+                    Tile* currentTile = &board[rows[j][i]][cols[j][i]];
+                    if(currentTile->GetPlayer() == turn){
                         advance[j][i] = false;
                         continue;
                     }
-                    moves.push_back(CtoP(rows[j][i], cols[j][i]));
-                    if(currentTile.GetPlayer() == (!turn))
+                    notation = "Q" + CtoP(rows[j][i], cols[j][i]);
+                    if(currentTile->GetPlayer() == (!turn)){
+                        notation = "Qx" + CtoP(rows[j][i], cols[j][i]);
                         advance[j][i] = false;
+                    }
+                    moves.push_back(Move(notation, aTile, currentTile));
                 }
             }
         }
     }
-    if(aTile.GetPiece() == "K") {
+    if(aTile->GetPiece() == "K") {
         int n = 1;
         bool conditions[2][4] = 
             {{row + n < 8, row - n >= 0, col + n < 8, col - n >= 0},
@@ -175,13 +220,27 @@ std::vector<std::string> Board::Moves(std::string position, bool turn){
                     continue;
                 }
 
-                Tile& currentTile = board[rows[j][i]][cols[j][i]];
-                if(currentTile.GetPlayer() == turn){
+                Tile* currentTile = &board[rows[j][i]][cols[j][i]];
+                if(currentTile->GetPlayer() == turn)
                     continue;
-                }
-                moves.push_back(CtoP(rows[j][i], cols[j][i]));
+                notation = "K" + CtoP(rows[j][i], cols[j][i]);
+                if(currentTile->GetPlayer() == (!turn))
+                    notation = "Kx" + CtoP(rows[j][i], cols[j][i]);
+                moves.push_back(Move(notation, aTile, currentTile));
             }
         }
+    }
+    // castling missing
+}
+
+void InsertMove(std::vector<Move>& moves, Move new_move){
+  return;
+}
+
+std::vector<Move> Board::PossibleMoves(bool turn){
+    std::vector<Move> moves;
+    for(auto piece : pieces[turn]) {    
+        PieceMoves(moves, piece, turn);
     }
     return moves;
 }
@@ -194,11 +253,15 @@ std::pair<int, int> PtoC(std::string position){
     return std::pair<int, int> (position[1] - '1', position[0] - 'a');
 }
 
+char ColToLetter(int col){
+    return col + 'a';
+}
+
 void Board::PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
         for(int j = 0; j <= 7; j++)
-            std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << "] ";
+            std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << board[i][j].GetPlayer() + 1 << "] ";
         std::cout << "" << std::endl;
         std::cout << "\n";
     }
@@ -210,5 +273,34 @@ void Board::MovePiece(std::string start, std::string end){
     std::pair<int, int> b = PtoC(end);
 
     // pass all the information from a to b
-    board[a.first][a.second].MovePiece(board[b.first][b.second]);
+    board[a.first][a.second].MovePiece(&board[b.first][b.second]);
+}
+
+void Board::MovePiece(Move m, bool turn){
+    for(auto& p : pieces[turn]){
+        if(p == m.fromTile)
+            p = m.toTile;
+    }
+    m.fromTile->MovePiece(m.toTile);
+    log.push_back(m);
+}
+
+bool Board::CheckOpponent(bool turn){
+    for(auto m : PossibleMoves(turn)){
+        if(m.toTile->GetPiece() == "K")
+            return true;
+    }
+    return false;
+}
+
+std::vector<Move> Board::LegalMoves(bool turn){
+    std::vector<Move> moves, possibles = PossibleMoves(turn);
+    for(int i = 0; i < possibles.size(); i++){
+        Board b(pieces);
+        std::vector<Move> copyMoves = b.PossibleMoves(turn);
+        b.MovePiece(copyMoves.at(i), turn);
+        if(b.CheckOpponent(!turn) == false)
+            moves.push_back(possibles.at(i));
+    }
+    return moves;
 }
