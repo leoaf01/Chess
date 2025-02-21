@@ -19,7 +19,7 @@ void Tile::MovePiece(Tile* destination) {
     destination->SetPlayer(playerPiece);
     // erase all values
     pieceName = "";
-    playerPiece = 0;
+    playerPiece = -1;
 }
 
 std::string Tile::GetPiece(){
