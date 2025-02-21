@@ -10,11 +10,23 @@ int main()
     // used for logic, prints in terminal
     Board board;
     std::cout << "Board Initialized\n";
-    board.PrintBoard();
-    std::vector<Move> moves = board.PossibleMoves(1);
-    std::cout << "Moves saved\n"; 
-    for(int i = 0; i < moves.size(); i++)
-        std::cout << moves.at(i).notation << std::endl;
+
+    bool turn = 0;
+    while(board.LegalMoves(turn).size() > 0){
+        board.PrintBoard();
+        std::cout << "Choose your move, player " << turn + 1 << ".\n";
+        std::vector<Move> moves = board.LegalMoves(turn);
+        for(int i = 0; i < moves.size(); i++)
+            std::cout << i << ". " << moves.at(i).notation << std::endl;
+            int input;
+            std::cin >> input;
+            if(input > moves.size() || input < 0){
+                std::cout << "Please choose one of the following moves.\n";
+                continue;
+            }
+            board.MovePiece(moves.at(input), turn);
+            turn = !turn;
+    }
 
     // used for display, not being used at the moment
     /*
