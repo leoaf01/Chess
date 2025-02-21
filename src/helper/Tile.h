@@ -10,7 +10,7 @@ public:
     Tile() : pieceName(""), playerPiece(-1), row(-1), col(-1) {};
     Tile(int r, int c);
     Tile(std::string piece, char player, int r, int c);
-    void MovePiece(Tile& destination);
+    void MovePiece(Tile* destination);
     std::string GetPiece();
     char GetPlayer();
     int GetRow();

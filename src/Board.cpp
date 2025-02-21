@@ -251,5 +251,17 @@ void Board::MovePiece(std::string start, std::string end){
     std::pair<int, int> b = PtoC(end);
 
     // pass all the information from a to b
-    board[a.first][a.second].MovePiece(board[b.first][b.second]);
+    board[a.first][a.second].MovePiece(&board[b.first][b.second]);
+}
+
+void Board::MovePiece(Move m){
+    m.fromTile->MovePiece(m.toTile);
+}
+
+bool Board::Check(bool turn){
+    for(auto m : PossibleMoves(turn)){
+        if(m.toTile->GetPiece() == "K")
+            return true;
+    }
+    return false;
 }

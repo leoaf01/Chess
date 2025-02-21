@@ -16,7 +16,9 @@ public:
     std::vector<Move> PossibleMoves(bool turn);
     void PrintBoard(); // on terminal
     void MovePiece(std::string start, std::string end);
+    void MovePiece(Move m);
     //std::set<std::string> ThreatenedTiles(bool turn);
+    bool Check(bool turn);
 };
 
 std::string CtoP(int row, int column);

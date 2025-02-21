@@ -14,9 +14,9 @@ Tile::Tile(std::string piece, char player, int r, int c) {
     col = c;
 }
 
-void Tile::MovePiece(Tile& destination) {
-    destination.SetPiece(pieceName);
-    destination.SetPlayer(playerPiece);
+void Tile::MovePiece(Tile* destination) {
+    destination->SetPiece(pieceName);
+    destination->SetPlayer(playerPiece);
     // erase all values
     pieceName = "";
     playerPiece = 0;
