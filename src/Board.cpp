@@ -44,6 +44,27 @@ Board::Board(){
     }
 }
 
+Board::Board(std::vector<Tile*> copyPieces[2]){
+    // Copies a board knowing the position of the pieces
+
+    // 1. Initialize all Tiles as empty
+    for(int i = 0; i < 8; i++){
+        for(int j = 0; j < 8; j++){
+            board[i][j] = Tile(i, j);
+        }
+    }
+
+    // 2. Assign Tiles with pieces
+    for(int i = 0; i < 2; i++){
+        for(auto p : copyPieces[i]){
+            int row = p->GetRow(), col = p->GetCol();
+            board[row][col] = Tile(p->GetPiece(), p->GetPlayer(), row, col);
+            pieces[i].push_back(&board[row][col]);
+        }
+    }
+        
+}
+
 void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
     // checks all possible moves from a piece, pins and checks unincluded
     //auto [row, col] = PtoC(position);
@@ -55,14 +76,14 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
         return;
 
     if(aTile->GetPiece() == "P") {
-        notation = "";
+        notation = ColToLetter(col);
         int forward = turn? -1 : 1;
         if(board[row + forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8){
-            notation = ColToLetter(col) + "x" + CtoP(row + forward, col + 1);
+            notation += "x" + CtoP(row + forward, col + 1);
             moves.push_back(Move(notation, aTile, &board[row+forward][col+1]));
         }
         if(board[row + forward][col - 1].GetPlayer() == (!turn) && col - 1 >= 0){
-            notation = ColToLetter(col) + "x" + CtoP(row + forward, col - 1);
+            notation += "x" + CtoP(row + forward, col - 1);
             moves.push_back(Move(notation, aTile, &board[row+forward][col-1]));
         }
         if(board[row + forward][col].GetPlayer() == turn)
@@ -215,7 +236,6 @@ void InsertMove(std::vector<Move>& moves, Move new_move){
 }
 
 std::vector<Move> Board::PossibleMoves(bool turn){
-    std::cout << "PossibleMoves entered\n";
     std::vector<Move> moves;
     for(auto piece : pieces[turn]) {    
         PieceMoves(moves, piece, turn);
@@ -254,14 +274,30 @@ void Board::MovePiece(std::string start, std::string end){
     board[a.first][a.second].MovePiece(&board[b.first][b.second]);
 }
 
-void Board::MovePiece(Move m){
+void Board::MovePiece(Move m, bool turn){
+    for(auto& p : pieces[turn]){
+        if(p == m.fromTile)
+            p = m.toTile;
+    }
     m.fromTile->MovePiece(m.toTile);
 }
 
-bool Board::Check(bool turn){
+bool Board::CheckOpponent(bool turn){
     for(auto m : PossibleMoves(turn)){
         if(m.toTile->GetPiece() == "K")
             return true;
     }
     return false;
+}
+
+std::vector<Move> Board::LegalMoves(bool turn){
+    Board b(pieces);
+    std::vector<Move> moves, possibles = PossibleMoves(turn), copyMoves = b.PossibleMoves(turn);
+
+    for(int i = 0; i < possibles.size(); i++){
+        b.MovePiece(copyMoves.at(i), turn);
+        if(b.CheckOpponent(!turn) == false)
+            moves.push_back(possibles.at(i));
+    }
+    return moves;
 }

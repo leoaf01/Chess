@@ -11,14 +11,16 @@ class Board {
     
 public:
     Board();
+    Board(std::vector<Tile*> copyPieces[2]);
     //void InitializeBoard(); // maybe not needed since constructor can initialize
     void PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn);
     std::vector<Move> PossibleMoves(bool turn);
     void PrintBoard(); // on terminal
     void MovePiece(std::string start, std::string end);
-    void MovePiece(Move m);
+    void MovePiece(Move m, bool turn);
     //std::set<std::string> ThreatenedTiles(bool turn);
-    bool Check(bool turn);
+    bool CheckOpponent(bool turn);
+    std::vector<Move> LegalMoves(bool turn);
 };
 
 std::string CtoP(int row, int column);
