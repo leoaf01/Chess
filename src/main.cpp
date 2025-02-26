@@ -37,7 +37,7 @@ int main()
             }
             int input2;
             std::cin >> input2;
-            if(input2 < 0 || input2 >= moves[input].size()){
+            if(input2 <= 0 || input2 > moves[input].size()){
                 "Please choose a legal move.\n";
                 continue;
             }
