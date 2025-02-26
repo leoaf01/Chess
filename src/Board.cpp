@@ -285,7 +285,19 @@ void Board::MovePiece(Move m, bool turn){
     log.push_back(m);
 }
 
-bool Board::CheckOpponent(bool turn){
+std::vector<Move> Board::LegalMoves(bool turn){
+    std::vector<Move> moves, possibles = PossibleMoves(turn);
+    for(int i = 0; i < possibles.size(); i++){
+        Board b(pieces);
+        std::vector<Move> copyMoves = b.PossibleMoves(turn);
+        b.MovePiece(copyMoves.at(i), turn);
+        if(b.Check(!turn) == false)
+        moves.push_back(possibles.at(i));
+    }
+    return moves;
+}
+
+bool Board::Check(bool turn){
     for(auto m : PossibleMoves(turn)){
         if(m.toTile->GetPiece() == "K")
             return true;
@@ -293,14 +305,24 @@ bool Board::CheckOpponent(bool turn){
     return false;
 }
 
-std::vector<Move> Board::LegalMoves(bool turn){
-    std::vector<Move> moves, possibles = PossibleMoves(turn);
-    for(int i = 0; i < possibles.size(); i++){
-        Board b(pieces);
-        std::vector<Move> copyMoves = b.PossibleMoves(turn);
-        b.MovePiece(copyMoves.at(i), turn);
-        if(b.CheckOpponent(!turn) == false)
-            moves.push_back(possibles.at(i));
+bool Board::Checkmate(bool turn){
+    if(Check(turn) == false)
+        return false;
+
+    bool kingMovesONly = false;
+    for(auto m : PossibleMoves(!turn)){
+        if(m.notation[0] != 'K'){
+            kingMovesONly = true;
+            break;   
+        }
     }
-    return moves;
+    if(kingMovesONly && LegalMoves(!turn).size() == 0)
+        return true;
+    return false;
+}
+
+bool Board::Stalemate(bool turn){
+    if(Check(turn) == false && LegalMoves(!turn).size() == 0)
+        return true;
+    return false;
 }

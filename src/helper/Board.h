@@ -19,8 +19,12 @@ public:
     void MovePiece(std::string start, std::string end);
     void MovePiece(Move m, bool);
     //std::set<std::string> ThreatenedTiles(bool turn);
-    bool CheckOpponent(bool turn);
     std::vector<Move> LegalMoves(bool turn);
+    
+    // check game status functions
+    bool Check(bool turn);
+    bool Checkmate(bool turn);
+    bool Stalemate(bool turn);
 };
 
 std::string CtoP(int row, int column);
