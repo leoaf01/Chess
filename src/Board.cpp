@@ -260,11 +260,33 @@ char ColToLetter(int col){
 void Board::PrintBoard(){
     std::cout << "Printing board" << std::endl;
     for(int i = 7; i >= 0; i--){
-        for(int j = 0; j <= 7; j++)
-            std::cout << "[" << std::setw(1) << board[i][j].GetPiece() << board[i][j].GetPlayer() + 1 << "] ";
-        std::cout << "" << std::endl;
+        std::cout << i+1;
+        for(int j = 0; j <= 7; j++){
+            std::string tile_print = "";
+            if((i+j) % 2 == 1) {
+                if(board[i][j].GetPlayer() == 0)
+                    tile_print = "\033[37;47m " + board[i][j].GetPiece() + " \33[0m";
+                else if(board[i][j].GetPlayer() == 1)
+                    tile_print = "\033[30;47m " + board[i][j].GetPiece() + " \33[0m";
+                else
+                    tile_print = "\033[33;47m   \33[0m";
+            }
+            else { // black tiles
+                if(board[i][j].GetPlayer() == 0)
+                    tile_print = "\033[37;42m " + board[i][j].GetPiece() + " \33[0m";
+                else if(board[i][j].GetPlayer() == 1)
+                    tile_print = "\033[30;42m " + board[i][j].GetPiece() + " \33[0m";
+                else
+                    tile_print = "\033[30;42m   \33[0m";
+            }
+            std::cout << "\033[1m" << tile_print;
+
+                
+        }
         std::cout << "\n";
     }
+    std::cout << "   a  b  c  d  e  f  g  h " << std::endl;
+    std::cout << std::endl;
 }
 
 void Board::MovePiece(std::string start, std::string end){

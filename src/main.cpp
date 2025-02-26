@@ -16,7 +16,6 @@ int main()
     int count = 1;
     bool end_game = false;
     while(board.LegalMoves(turn).size() > 0){
-        std::cout << (!board.Checkmate(turn) && !board.Stalemate(turn)) << std::endl; 
         std::cout << "Choose your move, player " << turn + 1 << ".\n";
         std::vector<Move> moves = board.LegalMoves(turn);
         // std::vector<Move> possibles = board.PossibleMoves(turn);
