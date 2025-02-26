@@ -17,23 +17,40 @@ int main()
     bool end_game = false;
     while(board.LegalMoves(turn).size() > 0){
         std::cout << "Choose your move, player " << turn + 1 << ".\n";
-        std::vector<Move> moves = board.LegalMoves(turn);
-        // std::vector<Move> possibles = board.PossibleMoves(turn);
-        for(int i = 0; i < moves.size(); i++)
-            std::cout << i << ". " << moves.at(i).notation << std::endl;
-        int input;
+        std::unordered_map<std::string, std::vector<Move>> moves = board.LegalMoves(turn);
+        
+        std::string input = "";
         std::cin >> input;
-        if(input >= moves.size() || input < 0){
-            std::cout << "Please choose one of the following moves.\n";
+        if(moves[input].size() == 0){
+            std::cout << "Please choose a legal move.\n";
             continue;
         }
-        board.MovePiece(moves.at(input), turn);
+        int i = 0;
+        if(moves[input].size() > 1){
+            std::cout << "Please choose which piece moves to " << input << std::endl;
+            for(i = 0; i < moves[input].size(); i++){
+                int row = moves[input].at(i).fromTile->GetRow();
+                int col = moves[input].at(i).fromTile->GetCol();
+                std::string piece = moves[input].at(i).fromTile->GetPiece() + CtoP(row, col);
+                
+                std::cout << i + 1 << ". " << piece << std::endl;
+            }
+            int input2;
+            std::cin >> input2;
+            if(input2 < 0 || input2 >= moves[input].size()){
+                "Please choose a legal move.\n";
+                continue;
+            }
+            else    
+                i = input2 - 1;
+        }
+        board.MovePiece(moves[input].at(i), turn);
         std::string suffix = "";
         if(board.Checkmate(turn))
             break;
         else if(board.Check(turn))
             suffix = "+";
-        std::cout << "Player " << turn + 1 << " moves " << moves.at(input).notation + suffix << std::endl;
+        std::cout << "Player " << turn + 1 << " moves " << input + suffix << std::endl;
         count++;
         turn = !turn;
         board.PrintBoard();
