@@ -233,12 +233,180 @@ void Board::PieceMoves(std::vector<Move>& moves, Tile* aTile, bool turn){
     // castling missing
 }
 
+void Board::PieceMoves(std::unordered_map<std::string, std::vector<Move>>& moves, Tile* aTile, bool turn){
+    // checks all possible moves from a piece, pins and checks unincluded
+    //auto [row, col] = PtoC(position);
+    //Tile& aTile = board[row][col];
+    int row = aTile->GetRow(), col = aTile->GetCol();
+    std::string notation = "";
+
+    if (aTile->GetPlayer() != turn)
+        return;
+
+    if(aTile->GetPiece() == "P") {
+        notation = ColToLetter(col);
+        int forward = turn? -1 : 1;
+        if(board[row + forward][col + 1].GetPlayer() == (!turn) && col + 1 < 8){
+            std::string extra = "x" + CtoP(row + forward, col + 1);
+            moves[notation + extra].push_back(Move(notation + extra, aTile, &board[row+forward][col+1]));
+        }
+        if(board[row + forward][col - 1].GetPlayer() == (!turn) && col - 1 >= 0){
+            std::string extra = "x" + CtoP(row + forward, col - 1);
+            moves[notation + extra].push_back(Move(notation + extra, aTile, &board[row+forward][col-1]));
+        }
+        if(board[row + forward][col].GetPlayer() != -1)
+            return; 
+        moves[CtoP(row + forward, col)].push_back(Move(CtoP(row + forward, col), aTile, &board[row+forward][col]));
+        if((row == 1 || row == 6) && board[row + 2*forward][col].GetPlayer() == -1)
+            moves[CtoP(row + 2*forward, col)].push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
+        // promotion missing
+        // en passant missing
+    }
+    if(aTile->GetPiece() == "R") {
+        bool advance[] = {true, true, true, true};
+        for(int n = 1; n < 8; n++){
+            bool conditions[4] = {row + n < 8, row - n >= 0, col + n < 8, col - n >= 0};
+            int rows[4] = {row + n, row - n, row, row};
+            int cols[4] = {col, col, col + n, col - n};
+            for(int i = 0; i < 4; i++){
+                if(!advance[i])
+                    continue;
+                if (!conditions[i]){
+                    advance[i] = false;
+                    continue;
+                }
+                Tile* currentTile = &board[rows[i]][cols[i]];
+                if(currentTile->GetPlayer() == turn){
+                    advance[i] = false;
+                    continue;
+                }
+                notation = "R" + CtoP(rows[i], cols[i]);
+                if(currentTile->GetPlayer() == (!turn)){
+                    notation = "Rx" + CtoP(rows[i], cols[i]);   
+                    advance[i] = false;
+                }
+                moves[notation].push_back(Move(notation, aTile, currentTile));
+            }
+        }
+    }
+    if(aTile->GetPiece() == "B") {
+        bool advance[] = {true, true, true, true};
+        for(int n = 1; n < 8; n++){
+            bool conditions[4] = {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0};
+            int rows[4] = {row + n, row + n, row - n, row - n};
+            int cols[4] = {col + n, col - n, col + n, col - n};
+            for(int i = 0; i < 4; i++){
+                if(!advance[i])
+                    continue;
+                if(!conditions[i]){
+                    advance[i] = false;
+                    continue;
+                }
+
+                Tile* currentTile = &board[rows[i]][cols[i]];
+                if(currentTile->GetPlayer() == turn){
+                    advance[i] = false;
+                    continue;
+                }
+                notation = "B" + CtoP(rows[i], cols[i]);
+                if(currentTile->GetPlayer() == (!turn)){
+                    notation = "Bx" + CtoP(rows[i], cols[i]);
+                    advance[i] = false;
+                }
+                moves[notation].push_back(Move(notation, aTile, currentTile));
+            }
+        }
+    }
+    if(aTile->GetPiece() == "N") {
+        for(int vertical = 1; vertical < 3; vertical++){
+            int horizontal = vertical == 1? 2 : 1;
+            int dir[2] = {1, -1};
+            for(int i = 0; i < 2; i++){
+                for(int j = 0; j < 2; j++){
+                    int jumpV = row + vertical*dir[i];
+                    int jumpH = col + horizontal*dir[j];
+                    if(jumpV >= 8 || jumpV < 0 || jumpH >= 8 || jumpH < 0)
+                        continue;
+                    Tile* currentTile = &board[jumpV][jumpH];
+                    if(currentTile->GetPlayer() == turn)
+                        continue;
+                    notation = "N" + CtoP(jumpV, jumpH);
+                    if(currentTile->GetPlayer() == (!turn))
+                        notation = "Nx" + CtoP(jumpV, jumpH);
+                    moves[notation].push_back(Move(notation, aTile, currentTile));
+                }
+            }            
+        }
+    }
+    if(aTile->GetPiece() == "Q") {
+        bool advance[2][4] = {{true, true, true, true}, // for rook moves
+                                {true, true, true, true}};// for bishop moves
+        for(int n = 1; n < 8; n++){
+            bool conditions[2][4] = 
+                {{row + n < 8, row - n >= 0, col + n < 8, col - n >= 0},
+                    {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0}};
+            int rows[2][4] = {{row + n, row - n, row, row},
+                                {row + n, row + n, row - n, row - n}};
+            int cols[2][4] = {{col, col, col + n, col - n},
+                                {col + n, col - n, col + n, col - n}};
+            for(int i = 0; i < 4; i++){
+                for(int j = 0; j < 2; j++){
+                    if(!advance[j][i])
+                        continue;
+                    if(!conditions[j][i]){
+                        advance[j][i] = false;
+                        continue;
+                    }
+
+                    Tile* currentTile = &board[rows[j][i]][cols[j][i]];
+                    if(currentTile->GetPlayer() == turn){
+                        advance[j][i] = false;
+                        continue;
+                    }
+                    notation = "Q" + CtoP(rows[j][i], cols[j][i]);
+                    if(currentTile->GetPlayer() == (!turn)){
+                        notation = "Qx" + CtoP(rows[j][i], cols[j][i]);
+                        advance[j][i] = false;
+                    }
+                    moves[notation].push_back(Move(notation, aTile, currentTile));
+                }
+            }
+        }
+    }
+    if(aTile->GetPiece() == "K") {
+        int n = 1;
+        bool conditions[2][4] = 
+            {{row + n < 8, row - n >= 0, col + n < 8, col - n >= 0},
+                {row+n<8 && col+n<8, row+n<8 && col-n>=0, row-n>=0 && col+n<8, row-n>=0 && col-n>=0}};
+        int rows[2][4] = {{row + n, row - n, row, row},
+                            {row + n, row + n, row - n, row - n}};
+        int cols[2][4] = {{col, col, col + n, col - n},
+                            {col + n, col - n, col + n, col - n}};
+        for(int i = 0; i < 4; i++){
+            for(int j = 0; j < 2; j++){
+                if(!conditions[j][i]){
+                    continue;
+                }
+
+                Tile* currentTile = &board[rows[j][i]][cols[j][i]];
+                if(currentTile->GetPlayer() == turn)
+                    continue;
+                notation = "K" + CtoP(rows[j][i], cols[j][i]);
+                if(currentTile->GetPlayer() == (!turn))
+                    notation = "Kx" + CtoP(rows[j][i], cols[j][i]);
+                moves[notation].push_back(Move(notation, aTile, currentTile));
+            }
+        }
+    }
+    // castling missing
+}
+
 void InsertMove(std::vector<Move>& moves, Move new_move){
   return;
 }
 
-std::vector<Move> Board::PossibleMoves(bool turn){
-    std::vector<Move> moves;
+std::unordered_map<std::string, std::vector<Move>> Board::PossibleMoves(bool turn){
+    std::unordered_map<std::string, std::vector<Move>> moves;
     for(auto piece : pieces[turn]) {    
         PieceMoves(moves, piece, turn);
     }
@@ -258,7 +426,7 @@ char ColToLetter(int col){
 }
 
 void Board::PrintBoard(){
-    std::cout << "Printing board" << std::endl;
+    std::cout << std::endl;
     for(int i = 7; i >= 0; i--){
         std::cout << i+1;
         for(int j = 0; j <= 7; j++){
@@ -285,7 +453,7 @@ void Board::PrintBoard(){
         }
         std::cout << "\n";
     }
-    std::cout << "   a  b  c  d  e  f  g  h " << std::endl;
+    std::cout << "  a  b  c  d  e  f  g  h " << std::endl;
     std::cout << std::endl;
 }
 
@@ -307,22 +475,26 @@ void Board::MovePiece(Move m, bool turn){
     log.push_back(m);
 }
 
-std::vector<Move> Board::LegalMoves(bool turn){
-    std::vector<Move> moves, possibles = PossibleMoves(turn);
-    for(int i = 0; i < possibles.size(); i++){
-        Board b(pieces);
-        std::vector<Move> copyMoves = b.PossibleMoves(turn);
-        b.MovePiece(copyMoves.at(i), turn);
-        if(b.Check(!turn) == false)
-        moves.push_back(possibles.at(i));
+std::unordered_map<std::string, std::vector<Move>> Board::LegalMoves(bool turn){
+    std::unordered_map<std::string, std::vector<Move>> moves, possibles = PossibleMoves(turn);
+    for(auto m : possibles){
+        for(int i = 0; i < possibles[m.first].size(); i++){
+            Board b(pieces);
+            std::unordered_map<std::string, std::vector<Move>> copyMoves = b.PossibleMoves(turn);
+            MovePiece(copyMoves[m.first].at(i), turn);
+                if(b.Check(!turn) == false)
+                    moves[m.first].push_back(possibles[m.first].at(i));
+        }
     }
     return moves;
 }
 
 bool Board::Check(bool turn){
-    for(auto m : PossibleMoves(turn)){
-        if(m.toTile->GetPiece() == "K")
-            return true;
+    for(auto n : PossibleMoves(turn)){
+        for(auto m : n.second){
+            if(m.toTile->GetPiece() == "K")
+                return true;
+        }
     }
     return false;
 }
