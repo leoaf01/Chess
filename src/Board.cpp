@@ -306,23 +306,13 @@ bool Board::Check(bool turn){
 }
 
 bool Board::Checkmate(bool turn){
-    if(Check(turn) == false)
-        return false;
-
-    bool kingMovesONly = false;
-    for(auto m : PossibleMoves(!turn)){
-        if(m.notation[0] != 'K'){
-            kingMovesONly = true;
-            break;   
-        }
-    }
-    if(kingMovesONly && LegalMoves(!turn).size() == 0)
+    if(Check(turn) && LegalMoves(!turn).size() == 0)
         return true;
     return false;
 }
 
 bool Board::Stalemate(bool turn){
-    if(Check(turn) == false && LegalMoves(!turn).size() == 0)
+    if(!Check(turn) == false && LegalMoves(!turn).size() == 0)
         return true;
     return false;
 }
