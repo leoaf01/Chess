@@ -8,10 +8,12 @@
 class Board {
     Tile board[8][8];
     std::vector<Tile*> pieces[2];
+    bool castle_short[2];
+    bool castle_long[2];
     std::vector<Move> log;
 public:
     Board();
-    Board(std::vector<Tile*> copyPieces[2]);
+    Board(std::vector<Tile*> copyPieces[2], bool cshort[2], bool clong[2]);
 
     // moving piece functions
     void PieceMoves(std::unordered_map<std::string, std::vector<Move>>& moves, Tile* aTile, bool turn);
@@ -19,11 +21,13 @@ public:
     void MovePiece(std::string start, std::string end);
     void MovePiece(Move m, bool);
     std::unordered_map<std::string, std::vector<Move>> LegalMoves(bool turn);
+    bool Castle(bool turn, int col1, int col2);
     
     // check game status functions
     bool Check(bool turn);
     bool Checkmate(bool turn);
     bool Stalemate(bool turn);
+
     
     void PrintBoard(); // on terminal
 };

@@ -26,7 +26,13 @@ int main()
             continue;
         }
         int i = 0;
-        if(moves[input].size() > 1){
+        if(input == "0-0" || input == "0-0-0"){
+            for(auto m : moves[input]){
+                board.MovePiece(m, turn);
+                std::cout << m.toTile->GetCol() << "\n";
+            }
+        }
+        else if(moves[input].size() > 1){
             std::cout << "Please choose which piece moves to " << input << std::endl;
             for(i = 0; i < moves[input].size(); i++){
                 int row = moves[input].at(i).fromTile->GetRow();

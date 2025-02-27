@@ -2,6 +2,12 @@
 
 // Constructor
 Board::Board(){
+    // 0. Set private member variables
+    for(int i = 0; i < 2; i++){
+        castle_short[i] = true;
+        castle_long[i] = true;
+    }
+
     // 1. Initialize the Tiles that are empty (rows 3 to 6)
     for(int i = 2; i < 6; i++){
         for(int j = 0; j < 8; j++){
@@ -46,8 +52,12 @@ Board::Board(){
 }
 
 // Copy Constructor
-Board::Board(std::vector<Tile*> copyPieces[2]){
-    // Copies a board knowing the position of the pieces
+Board::Board(std::vector<Tile*> copyPieces[2], bool cshort[2], bool clong[2]){
+    // 0. Copy member variables
+    for(int i = 0; i < 2; i++){
+        castle_short[i] = cshort[i];
+        castle_long[i] = clong[i];
+    }
 
     // 1. Initialize all Tiles as empty
     for(int i = 0; i < 8; i++)
@@ -291,12 +301,20 @@ std::unordered_map<std::string, std::vector<Move>> Board::LegalMoves(bool turn){
     std::unordered_map<std::string, std::vector<Move>> moves, possibles = PossibleMoves(turn);
     for(auto m : possibles)
         for(int i = 0; i < possibles[m.first].size(); i++){
-            Board b(pieces);
+            Board b(pieces, castle_short, castle_long);
             std::unordered_map<std::string, std::vector<Move>> copyMoves = b.PossibleMoves(turn);
             MovePiece(copyMoves[m.first].at(i), turn);
                 if(b.Check(!turn) == false)
                     moves[m.first].push_back(possibles[m.first].at(i));
         }
+    if(castle_short[turn] && Castle(turn, 5, 6)){ 
+        moves["0-0"].push_back(Move("0-0", &board[7*turn][4], &board[7*turn][6]));
+        moves["0-0"].push_back(Move("0-0", &board[7*turn][7], &board[7*turn][5]));
+    }
+    if(castle_long[turn] && Castle(turn, 2, 3)){ 
+        moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][4], &board[7*turn][2]));
+        moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][0], &board[7*turn][3]));
+    }
     return moves;
 }
 
@@ -320,6 +338,19 @@ bool Board::Stalemate(bool turn){
     return false;
 }
 
+bool Board::Castle(bool turn, int c1, int c2){
+    int row = 7*turn;
+    if(board[row][c1].GetPlayer() != -1 || board[row][c2].GetPlayer() != -1 || Check(!turn))
+        return false;
+    for(auto n : PossibleMoves(!turn))
+        for(auto m : n.second){
+            if(m.toTile->GetRow() == row && m.toTile->GetCol() == c1)
+                return false;
+            if(m.toTile->GetRow() == row && m.toTile->GetCol() == c2)
+                return false;
+        }
+    return true;   
+}
 
 // coordinates <> position funcitons
 std::string CtoP(int row, int column){
