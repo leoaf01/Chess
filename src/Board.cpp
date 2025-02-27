@@ -295,7 +295,7 @@ void Board::MovePiece(Move m, bool turn){
     if(m.fromTile->GetPiece() == "R"){
         if(m.fromTile->GetCol() == 7)
             castle_short[turn] = false;
-        if(m.fromTile->GetCol() == 0);
+        if(m.fromTile->GetCol() == 0)
             castle_long[turn] = false;
     }
     for(auto& p : pieces[turn]){
@@ -317,12 +317,10 @@ std::unordered_map<std::string, std::vector<Move>> Board::LegalMoves(bool turn){
                     moves[m.first].push_back(possibles[m.first].at(i));
         }
     if(castle_short[turn] && Castle(turn, 5, 6)){ 
-        std::cout << "Short Castle available\n";
         moves["0-0"].push_back(Move("0-0", &board[7*turn][4], &board[7*turn][6]));
         moves["0-0"].push_back(Move("0-0", &board[7*turn][7], &board[7*turn][5]));
     }
     if(castle_long[turn] && Castle(turn, 2, 3)){ 
-        std::cout << "Long Castle available\n";
         moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][4], &board[7*turn][2]));
         moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][0], &board[7*turn][3]));
     }
