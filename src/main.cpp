@@ -26,12 +26,8 @@ int main()
             continue;
         }
         int i = 0;
-        if(input == "0-0" || input == "0-0-0"){
-            for(auto m : moves[input]){
-                board.MovePiece(m, turn);
-                std::cout << m.toTile->GetCol() << "\n";
-            }
-        }
+        if(input == "0-0" || input == "0-0-0")
+            board.MovePiece(moves[input].at(1), turn);
         else if(moves[input].size() > 1){
             std::cout << "Please choose which piece moves to " << input << std::endl;
             for(i = 0; i < moves[input].size(); i++){
@@ -53,7 +49,7 @@ int main()
         board.MovePiece(moves[input].at(i), turn);
         std::string suffix = "";
         if(board.Checkmate(turn))
-            break;
+            suffix = "#";
         else if(board.Check(turn))
             suffix = "+";
         std::cout << "Player " << turn + 1 << " moves " << input + suffix << std::endl;
