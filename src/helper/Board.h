@@ -22,6 +22,7 @@ public:
     void MovePiece(Move m, bool);
     std::unordered_map<std::string, std::vector<Move>> LegalMoves(bool turn);
     bool Castle(bool turn, int col1, int col2);
+    void DisableCastling(bool turn);
     
     // check game status functions
     bool Check(bool turn);

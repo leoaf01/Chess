@@ -26,8 +26,10 @@ int main()
             continue;
         }
         int i = 0;
-        if(input == "0-0" || input == "0-0-0")
+        if(input == "0-0" || input == "0-0-0"){
             board.MovePiece(moves[input].at(1), turn);
+            board.DisableCastling(turn);
+        }
         else if(moves[input].size() > 1){
             std::cout << "Please choose which piece moves to " << input << std::endl;
             for(i = 0; i < moves[input].size(); i++){

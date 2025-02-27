@@ -289,6 +289,15 @@ void Board::MovePiece(std::string start, std::string end){
 }
 
 void Board::MovePiece(Move m, bool turn){
+    if(m.fromTile->GetPiece() == "K"){
+        DisableCastling(turn);
+    }
+    if(m.fromTile->GetPiece() == "R"){
+        if(m.fromTile->GetCol() == 7)
+            castle_short[turn] = false;
+        if(m.fromTile->GetCol() == 0);
+            castle_long[turn] = false;
+    }
     for(auto& p : pieces[turn]){
         if(p == m.fromTile)
             p = m.toTile;
@@ -303,15 +312,17 @@ std::unordered_map<std::string, std::vector<Move>> Board::LegalMoves(bool turn){
         for(int i = 0; i < possibles[m.first].size(); i++){
             Board b(pieces, castle_short, castle_long);
             std::unordered_map<std::string, std::vector<Move>> copyMoves = b.PossibleMoves(turn);
-            MovePiece(copyMoves[m.first].at(i), turn);
+            b.MovePiece(copyMoves[m.first].at(i), turn);
                 if(b.Check(!turn) == false)
                     moves[m.first].push_back(possibles[m.first].at(i));
         }
     if(castle_short[turn] && Castle(turn, 5, 6)){ 
+        std::cout << "Short Castle available\n";
         moves["0-0"].push_back(Move("0-0", &board[7*turn][4], &board[7*turn][6]));
         moves["0-0"].push_back(Move("0-0", &board[7*turn][7], &board[7*turn][5]));
     }
     if(castle_long[turn] && Castle(turn, 2, 3)){ 
+        std::cout << "Long Castle available\n";
         moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][4], &board[7*turn][2]));
         moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][0], &board[7*turn][3]));
     }
@@ -333,7 +344,7 @@ bool Board::Checkmate(bool turn){
 }
 
 bool Board::Stalemate(bool turn){
-    if(!Check(turn) == false && LegalMoves(!turn).size() == 0)
+    if(!Check(turn) && LegalMoves(!turn).size() == 0)
         return true;
     return false;
 }
@@ -350,6 +361,11 @@ bool Board::Castle(bool turn, int c1, int c2){
                 return false;
         }
     return true;   
+}
+
+void Board::DisableCastling(bool turn){
+    castle_short[turn] = false;
+    castle_long[turn] = false;
 }
 
 // coordinates <> position funcitons
