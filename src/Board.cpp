@@ -2,6 +2,12 @@
 
 // Constructor
 Board::Board(){
+    // 0. Set private member variables
+    for(int i = 0; i < 2; i++){
+        castle_short[i] = true;
+        castle_long[i] = true;
+    }
+
     // 1. Initialize the Tiles that are empty (rows 3 to 6)
     for(int i = 2; i < 6; i++){
         for(int j = 0; j < 8; j++){
@@ -46,8 +52,12 @@ Board::Board(){
 }
 
 // Copy Constructor
-Board::Board(std::vector<Tile*> copyPieces[2]){
-    // Copies a board knowing the position of the pieces
+Board::Board(std::vector<Tile*> copyPieces[2], bool cshort[2], bool clong[2]){
+    // 0. Copy member variables
+    for(int i = 0; i < 2; i++){
+        castle_short[i] = cshort[i];
+        castle_long[i] = clong[i];
+    }
 
     // 1. Initialize all Tiles as empty
     for(int i = 0; i < 8; i++)
@@ -279,6 +289,15 @@ void Board::MovePiece(std::string start, std::string end){
 }
 
 void Board::MovePiece(Move m, bool turn){
+    if(m.fromTile->GetPiece() == "K"){
+        DisableCastling(turn);
+    }
+    if(m.fromTile->GetPiece() == "R"){
+        if(m.fromTile->GetCol() == 7)
+            castle_short[turn] = false;
+        if(m.fromTile->GetCol() == 0)
+            castle_long[turn] = false;
+    }
     for(auto& p : pieces[turn]){
         if(p == m.fromTile)
             p = m.toTile;
@@ -291,12 +310,20 @@ std::unordered_map<std::string, std::vector<Move>> Board::LegalMoves(bool turn){
     std::unordered_map<std::string, std::vector<Move>> moves, possibles = PossibleMoves(turn);
     for(auto m : possibles)
         for(int i = 0; i < possibles[m.first].size(); i++){
-            Board b(pieces);
+            Board b(pieces, castle_short, castle_long);
             std::unordered_map<std::string, std::vector<Move>> copyMoves = b.PossibleMoves(turn);
-            MovePiece(copyMoves[m.first].at(i), turn);
+            b.MovePiece(copyMoves[m.first].at(i), turn);
                 if(b.Check(!turn) == false)
                     moves[m.first].push_back(possibles[m.first].at(i));
         }
+    if(castle_short[turn] && Castle(turn, 5, 6)){ 
+        moves["0-0"].push_back(Move("0-0", &board[7*turn][4], &board[7*turn][6]));
+        moves["0-0"].push_back(Move("0-0", &board[7*turn][7], &board[7*turn][5]));
+    }
+    if(castle_long[turn] && Castle(turn, 2, 3)){ 
+        moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][4], &board[7*turn][2]));
+        moves["0-0-0"].push_back(Move("0-0-0", &board[7*turn][0], &board[7*turn][3]));
+    }
     return moves;
 }
 
@@ -315,11 +342,29 @@ bool Board::Checkmate(bool turn){
 }
 
 bool Board::Stalemate(bool turn){
-    if(!Check(turn) == false && LegalMoves(!turn).size() == 0)
+    if(!Check(turn) && LegalMoves(!turn).size() == 0)
         return true;
     return false;
 }
 
+bool Board::Castle(bool turn, int c1, int c2){
+    int row = 7*turn;
+    if(board[row][c1].GetPlayer() != -1 || board[row][c2].GetPlayer() != -1 || Check(!turn))
+        return false;
+    for(auto n : PossibleMoves(!turn))
+        for(auto m : n.second){
+            if(m.toTile->GetRow() == row && m.toTile->GetCol() == c1)
+                return false;
+            if(m.toTile->GetRow() == row && m.toTile->GetCol() == c2)
+                return false;
+        }
+    return true;   
+}
+
+void Board::DisableCastling(bool turn){
+    castle_short[turn] = false;
+    castle_long[turn] = false;
+}
 
 // coordinates <> position funcitons
 std::string CtoP(int row, int column){
