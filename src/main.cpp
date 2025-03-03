@@ -59,11 +59,11 @@ int main()
         turn = !turn;
         board.PrintBoard();
     }
-    turn != turn;
+    turn = !turn;
     std::string endgame_message = "";
     if(board.Checkmate(turn))
-        endgame_message = "Player " + std::to_string(turn+1) + " won!"; 
-    else 
+        endgame_message = "Checkmate! Player " + std::to_string(turn+1) + " won!"; 
+    else
         endgame_message = "It's a tie!";
     std::cout << std::endl << endgame_message << std::endl;
     board.PrintBoard();
