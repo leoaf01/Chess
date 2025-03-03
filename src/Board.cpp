@@ -298,10 +298,16 @@ void Board::MovePiece(Move m, bool turn){
         if(m.fromTile->GetCol() == 0)
             castle_long[turn] = false;
     }
-    for(auto& p : pieces[turn]){
+    for(auto& p : pieces[turn])
         if(p == m.fromTile)
             p = m.toTile;
-    }
+    if(m.toTile->GetPlayer() == (!turn))
+        for(int i = 0; i < pieces[!turn].size(); i++)
+            if(pieces[!turn].at(i) == m.toTile){
+                pieces[!turn].erase(pieces[!turn].begin() + i);
+                break;
+            }
+                
     m.fromTile->MovePiece(m.toTile);
     log.push_back(m);
 }
