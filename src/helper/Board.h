@@ -28,7 +28,7 @@ public:
     bool Check(bool turn);
     bool Checkmate(bool turn);
     bool Stalemate(bool turn);
-
+    bool Promotion(bool turn);
     
     void PrintBoard(); // on terminal
 };

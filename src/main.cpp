@@ -50,10 +50,23 @@ int main()
         }
         board.MovePiece(moves[input].at(i), turn);
         std::string suffix = "";
+        if(board.Promotion(turn)){
+            bool ready = false;
+            std::string promote = "";
+            while(not ready){
+                std::cout << "Please choose a piece to switch your pawn. (N | B | R | Q)\n";
+                std::cin >> promote;
+                if(promote == "K" || promote == "N" || promote == "R" || promote == "Q")
+                    ready = true;
+                std::cout << "Choose one of the pieces on the list!\n";
+            }
+            moves[input].at(i).toTile->SetPiece(promote);
+            suffix = "=" + promote;
+        }
         if(board.Checkmate(turn))
-            suffix = "#";
+            suffix += "#";
         else if(board.Check(turn))
-            suffix = "+";
+            suffix += "+";
         std::cout << "Player " << turn + 1 << " moves " << input + suffix << std::endl;
         count++;
         turn = !turn;

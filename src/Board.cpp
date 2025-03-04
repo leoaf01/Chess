@@ -368,6 +368,16 @@ bool Board::Castle(bool turn, int c1, int c2){
     return true;   
 }
 
+bool Board::Promotion(bool turn){
+    for(int i = 0; i < 8; i++){
+        int row = !turn*7;
+        Tile* endTile = &board[row][i];
+        if(endTile->GetPiece() == "P")
+            return true;
+    }
+    return false;
+}
+
 void Board::DisableCastling(bool turn){
     castle_short[turn] = false;
     castle_long[turn] = false;
