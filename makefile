@@ -1,7 +1,7 @@
 all: compile move link
 
 compile:
-	g++ -ISFML-3.0.0/include -DSFML_STATIC -c src/*.cpp 
+	g++ -g -ISFML-3.0.0/include -DSFML_STATIC -c src/*.cpp 
 
 move:
 	mv *.o ./output

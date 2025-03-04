@@ -97,8 +97,9 @@ void Board::PieceMoves(std::unordered_map<std::string, std::vector<Move>>& moves
         if(board[row + forward][col].GetPlayer() != -1)
             return; 
         moves[CtoP(row + forward, col)].push_back(Move(CtoP(row + forward, col), aTile, &board[row+forward][col]));
-        if((row == 1 || row == 6) && board[row + 2*forward][col].GetPlayer() == -1)
-            moves[CtoP(row + 2*forward, col)].push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
+        if(row == (turn ? 6 : 1))
+            if(board[row + 2*forward][col].GetPlayer() == -1)
+                moves[CtoP(row + 2*forward, col)].push_back(Move(CtoP(row + 2*forward, col), aTile, &board[row+2*forward][col]));
         // promotion missing
         // en passant missing
     }
